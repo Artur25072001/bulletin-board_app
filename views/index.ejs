@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulletin Board</title>
+</head>
+<body>
+    <h1>Bulletin Board</h1>
+    
+    <form action="/" method="GET">
+        <input type="text" name="search" placeholder="Search..." value="<%= search %>">
+        <input type="hidden" name="sort" value="<%= currentSort %>">
+        <button type="submit">Search</button>
+    </form>
+
+    <ul>
+        <% for (const announcement of announcements) { %>
+            <li>
+                <h2><%= announcement.title %></h2>
+                <p><%= announcement.content %></p>   
+                <p>Author: <%= announcement.author %></p>
+                <p>Category: <%= announcement.category %></p>
+                <p>Price: <%= announcement.price %></p>
+                <p>Created At: <%= announcement.createdAt %></p>
+                <a href="/announcements/<%= announcement.id %>">Details</a>
+            </li>
+        <% } %>
+    </ul>
+
+    <div class="pagination-buttons">
+        <% if (currentPage > 1) { %>
+            <a href="/?page=<%= currentPage - 1 %>&search=<%= search %>&sort=<%= currentSort %>">
+                <button>Previous</button>
+            </a>
+        <% } %>
+        
+        <span>Page <%= currentPage %> of <%= totalPages %></span>
+
+        <% if (currentPage < totalPages) { %>
+            <a href="/?page=<%= currentPage + 1 %>&search=<%= search %>&sort=<%= currentSort %>">
+                <button>Next</button>
+            </a>
+        <% } %>
+    </div>
+</body>
+</html>
