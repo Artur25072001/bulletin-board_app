@@ -3,44 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulletin Board</title>
+    <title>Дошка оголошень</title>
+    <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-    <h1>Bulletin Board</h1>
-    
-    <form action="/" method="GET">
-        <input type="text" name="search" placeholder="Search..." value="<%= search %>">
-        <input type="hidden" name="sort" value="<%= currentSort %>">
-        <button type="submit">Search</button>
-    </form>
-
-    <ul>
-        <% for (const announcement of announcements) { %>
-            <li>
-                <h2><%= announcement.title %></h2>
-                <p><%= announcement.content %></p>   
-                <p>Author: <%= announcement.author %></p>
-                <p>Category: <%= announcement.category %></p>
-                <p>Price: <%= announcement.price %></p>
-                <p>Created At: <%= announcement.createdAt %></p>
-                <a href="/announcements/<%= announcement.id %>">Details</a>
-            </li>
-        <% } %>
-    </ul>
-
-    <div class="pagination-buttons">
-        <% if (currentPage > 1) { %>
-            <a href="/?page=<%= currentPage - 1 %>&search=<%= search %>&sort=<%= currentSort %>">
-                <button>Previous</button>
-            </a>
-        <% } %>
+    <div class="container">
+        <h1>Дошка оголошень</h1>
         
-        <span>Page <%= currentPage %> of <%= totalPages %></span>
+        <div class="toolbar">
+            <form action="/" method="GET" class="search-form">
+                <input type="text" name="search" placeholder="Шукати оголошення..." value="<%= search || '' %>">
+                
+                <select name="sort" onchange="this.form.submit()">
+                    <option value="newest" <%= currentSort === 'newest' ? 'selected' : '' %>>Новіші спочатку</option>
+                    <option value="oldest" <%= currentSort === 'oldest' ? 'selected' : '' %>>Старіші спочатку</option>
+                </select>
+                
+                <button type="submit">Знайти</button>
+            </form>
 
-        <% if (currentPage < totalPages) { %>
-            <a href="/?page=<%= currentPage + 1 %>&search=<%= search %>&sort=<%= currentSort %>">
-                <button>Next</button>
-            </a>
+            <a href="/announcements" class="btn-link btn-add">Додати оголошення</a>
+        </div>
+
+        <% if (announcements && announcements.length > 0) { %>
+            <ul class="cards-grid">
+                <% 
+                // Словник емоджі для категорій за ТЗ
+                const categoriesMap = {
+                    sale: '📦 Продаж',
+                    service: '🔧 Послуги',
+                    job: '💼 Робота',
+                    other: '📌 Інше'
+                };
+                %>
+                <% for (const announcement of announcements) { %>
+                    <li class="card">
+                        <div class="card-header">
+                            <h2><%= announcement.title %></h2>
+                            <span class="badge">
+                                <%= categoriesMap[announcement.category] || '📌 Інше' %>
+                            </span>
+                        </div>
+                        
+                        <p class="card-description">
+                            <%= announcement.description ? announcement.description.substring(0, 100) : '' %><%= announcement.description && announcement.description.length > 100 ? '...' : '' %>
+                        </p> 
+                        
+                        <div class="card-meta">
+                            Опубліковано: <%= new Date(announcement.createdAt).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' }) %>
+                        </div>
+                        
+                        <div class="card-footer">
+                            <span class="price">
+                                <%= announcement.price ? announcement.price.toFixed(2) : '0.00' %> грн
+                            </span>
+                            <a href="/announcements/<%= announcement.id %>" class="btn-link btn-details">Детальніше</a>
+                        </div>
+                    </li>
+                <% } %>
+            </ul>
+        <% } else { %>
+            <div class="no-data">Оголошень не знайдено</div>
+        <% } %>
+
+        <% if (totalPages > 1) { %>
+            <div class="pagination">
+                
+                <% if (currentPage > 1) { %>
+                    <a href="/?page=<%= currentPage - 1 %>&search=<%= encodeURIComponent(search || '') %>&sort=<%= currentSort %>" class="page-item">Попередня</a>
+                <% } else { %>
+                    <span class="page-item disabled">Попередня</span>
+                <% } %>
+                
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <a href="/?page=<%= i %>&search=<%= encodeURIComponent(search || '') %>&sort=<%= currentSort %>" 
+                       class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <%= i %>
+                    </a>
+                <% } %>
+
+                <% if (currentPage < totalPages) { %>
+                    <a href="/?page=<%= currentPage + 1 %>&search=<%= encodeURIComponent(search || '') %>&sort=<%= currentSort %>" class="page-item">Наступна</a>
+                <% } else { %>
+                    <span class="page-item disabled">Наступна</span>
+                <% } %>
+                
+            </div>
         <% } %>
     </div>
 </body>

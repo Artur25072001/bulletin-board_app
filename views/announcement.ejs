@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bulletin Board - Деталі оголошення</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <a href="/" class="btn-link btn-back">Назад</a>
+      
+      <div class="content-card">
+        <% 
+        const categoriesMap = {
+          sale: '📦 Продаж',
+          service: '🔧 Послуги',
+          job: '💼 Робота',
+          other: '📌 Інше'
+        };
+        %>
+        
+        <p><strong>Категорія:</strong> <span class="badge"><%= categoriesMap[announcement.category] || '📌 Інше' %></span></p>
+        <h1><%= announcement.title %></h1>
+        <p class="price"><%= announcement.price ? announcement.price.toFixed(2) : '0.00' %> грн</p>
+        <p class="card-meta">Дата публікації: <%= new Date(announcement.createdAt).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' }) %></p>
+        
+        <div class="card-description" style="font-size: 16px; margin: 20px 0;">
+          <%= announcement.description %>
+        </div>
+        
+        <p><strong>Контакти:</strong> <%= announcement.contactInfo %></p>
+        
+        <button id="delete-btn" data-id="<%= announcement.id %>">Видалити оголошення</button>
+      </div>
+    </div>
+
+    <script>
+      const deleteBtn = document.querySelector("#delete-btn");
+
+      deleteBtn.addEventListener("click", async () => {
+        const announcementId = deleteBtn.dataset.id;
+
+        if (!confirm("Ви впевнені що хочете видалити це оголошення?")) {
+          return;
+        }
+
+        try {
+          const response = await fetch(`/announcements/${announcementId}`, {
+            method: "DELETE",
+          });
+
+          if (response.ok) {
+            window.location.href = "/";
+          } else {
+            alert("Помилка при видаленні");
+          }
+        } catch (error) {
+          console.error(error);
+          alert("Помилка при видаленні");
+        }
+      });
+    </script>
+  </body>
+</html>
